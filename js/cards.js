@@ -21,15 +21,32 @@ export function initCards(gsap, Lenis, ScrollTrigger, SplitText) {
 	document.fonts.ready.then(() => {
 		const titles = gsap.utils.toArray(".card-title h2");
 		titles.forEach((title) => {
-			const split = new SplitText(title, {
-				type: "char",
-				charsClass: "char",
-				tag: "div",
-			});
+			// Manually split text into characters
+			const text = title.textContent;
+			title.innerHTML = "";
 
-			split.chars.forEach((char) => {
-				char.innerHTML = `<span>${char.textContent}</span>`;
+			text.split("").forEach((char, index) => {
+				const charDiv = document.createElement("div");
+				charDiv.className = "char";
+
+				// Handle spaces properly
+				if (char === " ") {
+					charDiv.innerHTML = "&nbsp;";
+				} else {
+					charDiv.textContent = char;
+				}
+
+				title.appendChild(charDiv);
 			});
+		});
+
+		// Set initial states after manual character creation
+		cards.forEach((card, index) => {
+			const cardDescription = card.querySelector(".card-desc");
+			const cardTitleChars = card.querySelectorAll(".char");
+
+			gsap.set(cardDescription, { opacity: 0, x: 40 });
+			gsap.set(cardTitleChars, { opacity: 0, x: "100%" });
 		});
 
 		// Initialize card animations after SplitText is ready
@@ -45,6 +62,7 @@ export function initCards(gsap, Lenis, ScrollTrigger, SplitText) {
 		function animateContentIn(titleChars, description) {
 			gsap.to(titleChars, {
 				x: "0%",
+				opacity: 1,
 				duration: 0.75,
 				ease: "power4.out",
 				stagger: 0.02,
@@ -61,6 +79,7 @@ export function initCards(gsap, Lenis, ScrollTrigger, SplitText) {
 		function animateContentOut(titleChars, description) {
 			gsap.to(titleChars, {
 				x: "100%",
+				opacity: 0,
 				duration: 0.5,
 				ease: "power4.out",
 				stagger: 0.01,
@@ -74,11 +93,8 @@ export function initCards(gsap, Lenis, ScrollTrigger, SplitText) {
 		}
 
 		const marquee = introCard.querySelector(".card-marquee .marquee");
-		const titleChars = introCard.querySelector(".char span");
+		const titleChars = introCard.querySelectorAll(".char");
 		const description = introCard.querySelector(".card-desc");
-
-		// Set initial state for intro card description
-		gsap.set(description, { opacity: 0, x: 40 });
 
 		ScrollTrigger.create({
 			trigger: introCard,
@@ -173,10 +189,7 @@ export function initCards(gsap, Lenis, ScrollTrigger, SplitText) {
 			if (index === 0) return;
 
 			const cardDescription = card.querySelector(".card-desc");
-			const cardTitleChars = card.querySelector(".char span");
-
-			// Set initial state for non-intro cards
-			gsap.set(cardDescription, { opacity: 0, x: 40 });
+			const cardTitleChars = card.querySelectorAll(".char");
 
 			ScrollTrigger.create({
 				trigger: card,

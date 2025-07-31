@@ -1073,12 +1073,13 @@ h2 {
 	position: relative;
 	overflow: hidden;
 	display: inline-block;
+	transform: translateX(100%);
+	will-change: transform;
 }
 
-.char span {
-	transform: translateX(100%);
-	display: inline-block;
-	will-change: transform;
+/* Ensure spaces are visible */
+.char:empty::before {
+	content: "\00a0";
 }
 
 @media (max-width: 900px) {
