@@ -5,6 +5,12 @@ export default defineConfig({
 		outDir: "dist",
 		assetsDir: "assets",
 		rollupOptions: {
+			input: {
+				main: "index.html",
+				services: "services.html",
+				about: "about.html",
+				contact: "contact.html",
+			},
 			output: {
 				manualChunks: {
 					vendor: ["gsap", "lenis"],
