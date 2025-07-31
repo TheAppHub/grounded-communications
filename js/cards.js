@@ -21,22 +21,39 @@ export function initCards(gsap, Lenis, ScrollTrigger, SplitText) {
 	document.fonts.ready.then(() => {
 		const titles = gsap.utils.toArray(".card-title h2");
 		titles.forEach((title) => {
-			// Manually split text into characters
+			// Manually split text into words, then characters
 			const text = title.textContent;
 			title.innerHTML = "";
 
-			text.split("").forEach((char, index) => {
-				const charDiv = document.createElement("div");
-				charDiv.className = "char";
+			// Split by words first
+			const words = text.split(" ");
 
-				// Handle spaces properly
-				if (char === " ") {
-					charDiv.innerHTML = "&nbsp;";
-				} else {
+			words.forEach((word, wordIndex) => {
+				// Create a word wrapper div
+				const wordDiv = document.createElement("div");
+				wordDiv.className = "word";
+				wordDiv.style.display = "inline-block";
+				wordDiv.style.whiteSpace = "nowrap";
+
+				// Split each word into characters
+				word.split("").forEach((char, charIndex) => {
+					const charDiv = document.createElement("div");
+					charDiv.className = "char";
+					charDiv.style.display = "inline-block";
 					charDiv.textContent = char;
-				}
+					wordDiv.appendChild(charDiv);
+				});
 
-				title.appendChild(charDiv);
+				title.appendChild(wordDiv);
+
+				// Add space between words (except for the last word)
+				if (wordIndex < words.length - 1) {
+					const spaceDiv = document.createElement("div");
+					spaceDiv.className = "char";
+					spaceDiv.style.display = "inline-block";
+					spaceDiv.innerHTML = "&nbsp;";
+					title.appendChild(spaceDiv);
+				}
 			});
 		});
 

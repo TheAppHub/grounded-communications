@@ -1076,6 +1076,11 @@ h2 {
 	text-align: center;
 }
 
+.card-content .card-title .word {
+	display: inline-block;
+	white-space: nowrap;
+}
+
 .card-content .card-desc {
 	width: 60%;
 	position: relative;
