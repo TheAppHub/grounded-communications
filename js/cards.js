@@ -44,9 +44,16 @@ export function initCards(gsap, Lenis, ScrollTrigger, SplitText) {
 		cards.forEach((card, index) => {
 			const cardDescription = card.querySelector(".card-desc");
 			const cardTitleChars = card.querySelectorAll(".char");
+			const cardImg = card.querySelector(".card-img");
+
+			// Add overlay to each card image
+			const overlay = document.createElement("div");
+			overlay.className = "card-overlay";
+			cardImg.appendChild(overlay);
 
 			gsap.set(cardDescription, { opacity: 0, x: 40 });
 			gsap.set(cardTitleChars, { opacity: 0, x: "100%" });
+			gsap.set(overlay, { opacity: 0 });
 		});
 
 		// Initialize card animations after SplitText is ready
@@ -59,7 +66,7 @@ export function initCards(gsap, Lenis, ScrollTrigger, SplitText) {
 		gsap.set(cardImgWrapper, { scale: 0.5, borderRadius: "400px" });
 		gsap.set(cardImg, { scale: 1.5 });
 
-		function animateContentIn(titleChars, description) {
+		function animateContentIn(titleChars, description, overlay) {
 			gsap.to(titleChars, {
 				x: "0%",
 				opacity: 1,
@@ -74,9 +81,14 @@ export function initCards(gsap, Lenis, ScrollTrigger, SplitText) {
 				delay: 0.1,
 				ease: "power4.out",
 			});
+			gsap.to(overlay, {
+				opacity: 0.95,
+				duration: 0.75,
+				ease: "power4.out",
+			});
 		}
 
-		function animateContentOut(titleChars, description) {
+		function animateContentOut(titleChars, description, overlay) {
 			gsap.to(titleChars, {
 				x: "100%",
 				opacity: 0,
@@ -90,11 +102,17 @@ export function initCards(gsap, Lenis, ScrollTrigger, SplitText) {
 				duration: 0.5,
 				ease: "power4.out",
 			});
+			gsap.to(overlay, {
+				opacity: 0,
+				duration: 0.5,
+				ease: "power4.out",
+			});
 		}
 
 		const marquee = introCard.querySelector(".card-marquee .marquee");
 		const titleChars = introCard.querySelectorAll(".char");
 		const description = introCard.querySelector(".card-desc");
+		const introOverlay = introCard.querySelector(".card-overlay");
 
 		ScrollTrigger.create({
 			trigger: introCard,
@@ -126,11 +144,11 @@ export function initCards(gsap, Lenis, ScrollTrigger, SplitText) {
 
 				if (progress >= 1 && !introCard.contentRevealed) {
 					introCard.contentRevealed = true;
-					animateContentIn(titleChars, description);
+					animateContentIn(titleChars, description, introOverlay);
 				}
 				if (progress < 1 && introCard.contentRevealed) {
 					introCard.contentRevealed = false;
-					animateContentOut(titleChars, description);
+					animateContentOut(titleChars, description, introOverlay);
 				}
 			},
 		});
@@ -190,12 +208,19 @@ export function initCards(gsap, Lenis, ScrollTrigger, SplitText) {
 
 			const cardDescription = card.querySelector(".card-desc");
 			const cardTitleChars = card.querySelectorAll(".char");
+			const cardOverlay = card.querySelector(".card-overlay");
 
 			ScrollTrigger.create({
 				trigger: card,
 				start: "top top",
-				onEnter: () => animateContentIn(cardTitleChars, cardDescription),
-				onLeave: () => animateContentOut(cardTitleChars, cardDescription),
+				onEnter: () =>
+					animateContentIn(cardTitleChars, cardDescription, cardOverlay),
+				onLeave: () =>
+					animateContentOut(cardTitleChars, cardDescription, cardOverlay),
+				onEnterBack: () =>
+					animateContentIn(cardTitleChars, cardDescription, cardOverlay),
+				onLeaveBack: () =>
+					animateContentOut(cardTitleChars, cardDescription, cardOverlay),
 			});
 		});
 
