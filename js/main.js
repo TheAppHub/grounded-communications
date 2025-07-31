@@ -11,9 +11,13 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, SplitText);
 // Import and initialize scripts with proper ES6 structure
 import { initScripts } from "./script.js";
 import { initCards } from "./cards.js";
+import { initContactAnimation } from "./contact.js";
+import { initAboutAnimation } from "./about.js";
 
 // Initialize everything when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
 	initScripts(gsap, Lenis, ScrollTrigger);
 	initCards(gsap, Lenis, ScrollTrigger, SplitText);
+	initContactAnimation();
+	initAboutAnimation();
 });
