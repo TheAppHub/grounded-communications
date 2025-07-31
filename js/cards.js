@@ -77,6 +77,9 @@ export function initCards(gsap, Lenis, ScrollTrigger, SplitText) {
 		const titleChars = introCard.querySelector(".char span");
 		const description = introCard.querySelector(".card-desc");
 
+		// Set initial state for intro card description
+		gsap.set(description, { opacity: 0, x: 40 });
+
 		ScrollTrigger.create({
 			trigger: introCard,
 			start: "top top",
@@ -171,6 +174,9 @@ export function initCards(gsap, Lenis, ScrollTrigger, SplitText) {
 
 			const cardDescription = card.querySelector(".card-desc");
 			const cardTitleChars = card.querySelector(".char span");
+
+			// Set initial state for non-intro cards
+			gsap.set(cardDescription, { opacity: 0, x: 40 });
 
 			ScrollTrigger.create({
 				trigger: card,
