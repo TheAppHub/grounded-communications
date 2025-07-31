@@ -1000,6 +1000,9 @@ h2 {
 
 .marquee {
 	display: flex;
+	overflow: hidden;
+	position: relative;
+	width: 100%;
 }
 
 .marquee h2 {

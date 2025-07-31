@@ -1,77 +1,73 @@
-import gsap from "gsap";
+export function initMarquee(gsap, ScrollTrigger) {
+	const marqueeItems = gsap.utils.toArray(".marquee");
 
-export function setupMarqueeAnimation() {
-	const marqueeItems = gsap.utils.toArray(".marquee h2");
+	if (marqueeItems.length === 0) {
+		return; // Exit if no marquee items found
+	}
 
-	if (marqueeItems.length > 0) {
-		const tl = horizontalLoop(marqueeItems, {
-			repeat: -1,
-			paddingRight: 30,
+	marqueeItems.forEach((marquee) => {
+		// Get all h2 elements inside this marquee
+		const h2Elements = marquee.querySelectorAll("h2");
+
+		if (h2Elements.length === 0) return;
+
+		// Clear any existing clones first
+		const existingClones = marquee.querySelectorAll("h2[data-clone]");
+		existingClones.forEach((clone) => clone.remove());
+
+		// Create a wrapper for the original content
+		const originalContent = marquee.innerHTML;
+		marquee.innerHTML = "";
+
+		// Create multiple sets for seamless looping (3 sets total)
+		const sets = [];
+		for (let i = 0; i < 3; i++) {
+			const set = document.createElement("div");
+			set.className = "marquee-set";
+			set.style.display = "flex";
+			set.style.gap = "20px";
+			set.style.alignItems = "center";
+			set.style.whiteSpace = "nowrap";
+			set.innerHTML = originalContent;
+
+			// Mark cloned elements (except for the first set)
+			if (i > 0) {
+				set.querySelectorAll("h2").forEach((h2) => {
+					h2.setAttribute("data-clone", "true");
+				});
+			}
+
+			sets.push(set);
+		}
+
+		// Create a container for all sets
+		const container = document.createElement("div");
+		container.style.display = "flex";
+		container.style.width = "fit-content";
+
+		// Add all sets to container
+		sets.forEach((set) => container.appendChild(set));
+
+		// Add container to marquee
+		marquee.appendChild(container);
+
+		// Set marquee container styles
+		marquee.style.overflow = "hidden";
+		marquee.style.position = "relative";
+
+		// Get the width of one complete set
+		const firstSetWidth = sets[0].offsetWidth;
+
+		// Create scroll-driven animation that loops
+		gsap.to(container, {
+			x: -firstSetWidth * 0.3, // Much slower movement - 10x the set width
+			ease: "none",
+			scrollTrigger: {
+				trigger: marquee,
+				start: "top bottom", // Start immediately when top of marquee enters viewport
+				end: "bottom top", // End when bottom of marquee leaves viewport
+				scrub: true,
+			},
 		});
-	}
-}
-
-function horizontalLoop(items, config) {
-	items = gsap.utils.toArray(items);
-	config = config || {};
-	let tl = gsap.timeline({
-		repeat: config.repeat,
-		defaults: { ease: "none" },
 	});
-	let length = items.length;
-	let statX = items[0].offsetLeft;
-	let width = [];
-	let xPercents = (config.speed || 1) * 100;
-	let totalWidth, curX, distanceToStart, distanceToLoop, item, i;
-
-	gsap.set(items, {
-		xPercent: (i, el) => {
-			let w = (widths[i] = parseFloat(gsap.getProperty(el, "width", "px")));
-			xPercents[i] =
-				(parseFloat(gsap.getProperty(el, "x", "px")) / w) * 100 +
-				gsap.getProperty(el, "xPercent");
-			return xPercents[i];
-		},
-	});
-
-	gsap.set(items, { x: 0 });
-
-	totalWidth =
-		items[length - 1].offsetLeft +
-		(xPercents[length - 1] / 100) * widths[length - 1] -
-		startX +
-		items[length - 1].offsetWidth *
-			gsap.getProperty(items[length - 1], "scaleX") +
-		(parseFloat(config.paddingRight) || 0);
-
-	for (i = 0; i < length; i++) {
-		item = items[i];
-		curX = (xPercents[i] / 100) * widths[i];
-		distanceToStart = item.offsetLeft + curX - startX;
-		distanceToLoop =
-			distanceToStart + widths[i] * gsap.getProperty(item, "scaleX");
-
-		tl.to(
-			item,
-			{
-				xPercent: ((curX + distanceToStart) / widths[i]) * 100,
-				duration: distanceToLoop / pixelsPerSecound,
-			},
-			0,
-		).fromTo(
-			item,
-			{ xPercent: ((curX - distanceToLoop + totalWodth) / widths[i]) * 100 },
-			{
-				xPercent: xPercents[i],
-				durection:
-					(curX - distanceToLoop + totalWidth - curX) / pixelsPerSecound,
-				immediateRender: false,
-			},
-			distanceToLoop / pixelsPerSecound,
-		);
-	}
-
-	tl.progress(1, true).progress(0, true);
-
-	return tl;
 }
