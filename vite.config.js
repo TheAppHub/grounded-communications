@@ -1,6 +1,4 @@
 import { defineConfig } from "vite";
-import fs from "fs";
-import path from "path";
 
 export default defineConfig({
 	build: {
@@ -52,49 +50,4 @@ export default defineConfig({
 		port: 4173,
 		open: true,
 	},
-	plugins: [
-		{
-			name: 'folder-structure',
-			writeBundle(options, bundle) {
-				const outDir = options.dir || 'dist';
-				
-				// Files to create folders for
-				const filesToProcess = [
-					{ from: 'services.html', to: 'services' },
-					{ from: 'about.html', to: 'about' },
-					{ from: 'contact.html', to: 'contact' }
-				];
-
-				console.log('Creating folder structure for clean URLs...');
-
-				filesToProcess.forEach(({ from, to }) => {
-					const fromPath = path.join(outDir, from);
-					const folderPath = path.join(outDir, to);
-					const indexPath = path.join(folderPath, 'index.html');
-					
-					if (fs.existsSync(fromPath)) {
-						// Create the folder
-						if (!fs.existsSync(folderPath)) {
-							fs.mkdirSync(folderPath, { recursive: true });
-						}
-						
-						// Read the HTML content
-						const content = fs.readFileSync(fromPath, 'utf8');
-						
-						// Create index.html inside the folder
-						fs.writeFileSync(indexPath, content);
-						
-						// Remove the original file
-						fs.unlinkSync(fromPath);
-						
-						console.log(`✓ Created ${to}/index.html`);
-					} else {
-						console.log(`⚠ File ${from} not found`);
-					}
-				});
-
-				console.log('Folder structure created successfully!');
-			}
-		}
-	],
 });
