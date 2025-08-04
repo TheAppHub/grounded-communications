@@ -1,4 +1,6 @@
 import { defineConfig } from "vite";
+import fs from "fs";
+import path from "path";
 
 export default defineConfig({
 	build: {
@@ -50,4 +52,46 @@ export default defineConfig({
 		port: 4173,
 		open: true,
 	},
+	plugins: [
+		{
+			name: 'clean-urls',
+			writeBundle(options, bundle) {
+				const outDir = options.dir || 'dist';
+				
+				// Files to create clean URLs for
+				const filesToProcess = [
+					{ from: 'services.html', to: 'services' },
+					{ from: 'about.html', to: 'about' },
+					{ from: 'contact.html', to: 'contact' }
+				];
+
+				console.log('Creating clean URLs...');
+
+				filesToProcess.forEach(({ from, to }) => {
+					const fromPath = path.join(outDir, from);
+					const toPath = path.join(outDir, to);
+					
+					if (fs.existsSync(fromPath)) {
+						// Read the HTML content
+						const content = fs.readFileSync(fromPath, 'utf8');
+						
+						// Create a file with .html extension that S3 can serve
+						const htmlPath = path.join(outDir, `${to}.html`);
+						fs.writeFileSync(htmlPath, content);
+						
+						// Also create a copy without extension for clean URLs
+						// This will be served by CloudFront with proper MIME type configuration
+						fs.writeFileSync(toPath, content);
+						
+						console.log(`✓ Created ${to}.html and ${to}`);
+					} else {
+						console.log(`⚠ File ${from} not found`);
+					}
+				});
+
+				console.log('Clean URLs created successfully!');
+				console.log('Note: Configure S3/CloudFront to serve files without extensions with text/html MIME type');
+			}
+		}
+	],
 });

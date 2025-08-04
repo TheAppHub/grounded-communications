@@ -38,7 +38,21 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync dist/ s3://${{ secrets.S3_BUCKET }} --delete
+          # First, sync all files except clean URL files
+          aws s3 sync dist/ s3://${{ secrets.S3_BUCKET }} --delete --exclude "services" --exclude "about" --exclude "contact"
+          
+          # Then upload clean URL files with proper MIME type
+          if [ -f "dist/services" ]; then
+            aws s3 cp dist/services s3://${{ secrets.S3_BUCKET }}/services --content-type "text/html" --cache-control "public, max-age=31536000"
+          fi
+          
+          if [ -f "dist/about" ]; then
+            aws s3 cp dist/about s3://${{ secrets.S3_BUCKET }}/about --content-type "text/html" --cache-control "public, max-age=31536000"
+          fi
+          
+          if [ -f "dist/contact" ]; then
+            aws s3 cp dist/contact s3://${{ secrets.S3_BUCKET }}/contact --content-type "text/html" --cache-control "public, max-age=31536000"
+          fi
 
       - name: Invalidate CloudFront cache
         run: |

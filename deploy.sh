@@ -40,9 +40,24 @@ fi
 
 echo -e "${GREEN}✅ Build completed${NC}"
 
-# Deploy to S3
+# Deploy to S3 with proper MIME types
 echo -e "${YELLOW}📤 Deploying to S3...${NC}"
-aws s3 sync dist/ s3://$BUCKET_NAME --delete
+
+# First, sync all files except clean URL files
+aws s3 sync dist/ s3://$BUCKET_NAME --delete --exclude "services" --exclude "about" --exclude "contact"
+
+# Then upload clean URL files with proper MIME type
+if [ -f "dist/services" ]; then
+    aws s3 cp dist/services s3://$BUCKET_NAME/services --content-type "text/html" --cache-control "public, max-age=31536000"
+fi
+
+if [ -f "dist/about" ]; then
+    aws s3 cp dist/about s3://$BUCKET_NAME/about --content-type "text/html" --cache-control "public, max-age=31536000"
+fi
+
+if [ -f "dist/contact" ]; then
+    aws s3 cp dist/contact s3://$BUCKET_NAME/contact --content-type "text/html" --cache-control "public, max-age=31536000"
+fi
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}❌ S3 deployment failed${NC}"
