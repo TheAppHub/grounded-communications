@@ -54,43 +54,46 @@ export default defineConfig({
 	},
 	plugins: [
 		{
-			name: 'clean-urls',
+			name: 'folder-structure',
 			writeBundle(options, bundle) {
 				const outDir = options.dir || 'dist';
 				
-				// Files to create clean URLs for
+				// Files to create folders for
 				const filesToProcess = [
 					{ from: 'services.html', to: 'services' },
 					{ from: 'about.html', to: 'about' },
 					{ from: 'contact.html', to: 'contact' }
 				];
 
-				console.log('Creating clean URLs...');
+				console.log('Creating folder structure for clean URLs...');
 
 				filesToProcess.forEach(({ from, to }) => {
 					const fromPath = path.join(outDir, from);
-					const toPath = path.join(outDir, to);
+					const folderPath = path.join(outDir, to);
+					const indexPath = path.join(folderPath, 'index.html');
 					
 					if (fs.existsSync(fromPath)) {
+						// Create the folder
+						if (!fs.existsSync(folderPath)) {
+							fs.mkdirSync(folderPath, { recursive: true });
+						}
+						
 						// Read the HTML content
 						const content = fs.readFileSync(fromPath, 'utf8');
 						
-						// Create a file with .html extension that S3 can serve
-						const htmlPath = path.join(outDir, `${to}.html`);
-						fs.writeFileSync(htmlPath, content);
+						// Create index.html inside the folder
+						fs.writeFileSync(indexPath, content);
 						
-						// Also create a copy without extension for clean URLs
-						// This will be served by CloudFront with proper MIME type configuration
-						fs.writeFileSync(toPath, content);
+						// Remove the original file
+						fs.unlinkSync(fromPath);
 						
-						console.log(`✓ Created ${to}.html and ${to}`);
+						console.log(`✓ Created ${to}/index.html`);
 					} else {
 						console.log(`⚠ File ${from} not found`);
 					}
 				});
 
-				console.log('Clean URLs created successfully!');
-				console.log('Note: Configure S3/CloudFront to serve files without extensions with text/html MIME type');
+				console.log('Folder structure created successfully!');
 			}
 		}
 	],
