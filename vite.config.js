@@ -18,6 +18,12 @@ export default defineConfig({
 				assetFileNames: (assetInfo) => {
 					const info = assetInfo.name.split(".");
 					const ext = info[info.length - 1];
+
+					// Special case: email-logo.png gets no hash for email signature use
+					if (assetInfo.name === "email-logo.png") {
+						return `assets/images/email-logo.png`;
+					}
+
 					if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
 						return `assets/images/[name]-[hash][extname]`;
 					}
