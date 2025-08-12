@@ -30,6 +30,19 @@ export default defineConfig({
 					return `assets/[name]-[hash][extname]`;
 				},
 			},
+			plugins: [
+				{
+					name: "copy-email-logo",
+					generateBundle() {
+						// This ensures email-logo.png is included in the build
+						this.emitFile({
+							type: "asset",
+							fileName: "assets/images/email-logo.png",
+							source: require("fs").readFileSync("img/email-logo.png"),
+						});
+					},
+				},
+			],
 		},
 		minify: "terser",
 		terserOptions: {
@@ -40,6 +53,8 @@ export default defineConfig({
 		},
 		cssMinify: true,
 		sourcemap: false,
+		// Copy email-logo.png to build output
+		assetsInlineLimit: 0,
 	},
 	server: {
 		port: 3000,
